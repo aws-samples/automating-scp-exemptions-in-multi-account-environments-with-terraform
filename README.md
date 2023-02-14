@@ -1,6 +1,6 @@
 This library is licensed under the MIT-0 License. See the LICENSE file.
 
-# SCP Exemptions Solution - How to securely provide Just-in-Time privileged access using ABAC and SCPs in multi-account environments?
+# Automating SCP Exemptions in Multi-Account Environments with Terraform
 
 Customers use [Service Control Policies](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html) (SCPs) to prevent the use of privileged AWS service actions or to protect resources within AWS Organizations member accounts. They quickly realize that exemptions to the SCP policies for roles assumed by administrators or security automation solutions are required in order to configure the protected resources. The exemptions are usually provided permanently but are usually only needed temporarily during a security event or during a change window. 
 
