@@ -1,0 +1,12 @@
+{
+  "pk": {"S": "[ACCOUNT OR OU ID]"},
+  "sk": {"S": "[ROLE NAME]"},
+  "AccountId": {"S": "[ACCOUNT OR OU ID]"},
+  "RoleName": {"S": "[ROLE NAME]"},
+  "ExemptionTagKeys": {
+    "L": [
+      {"S": "[EXEMPTION TAG KEY]"}
+    ]
+  },
+  "ttl": {"N": "1599152400"}
+}

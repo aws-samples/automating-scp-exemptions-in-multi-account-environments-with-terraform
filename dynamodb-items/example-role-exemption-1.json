@@ -1,0 +1,12 @@
+{
+  "pk": {"S": "408111111111"},
+  "sk": {"S": "Admin"},
+  "AccountId": {"S": "408111111111"},
+  "RoleName": {"S": "Admin"},
+  "ExemptionTagKeys": {
+      "L": [
+      {"S": "exe-scp-disable-ebs-encryption"}
+      ]
+  },
+  "ttl": {"N": "1655485200"}
+  }

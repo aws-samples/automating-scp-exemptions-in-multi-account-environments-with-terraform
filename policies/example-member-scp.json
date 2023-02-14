@@ -1,0 +1,212 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyAccountPublicAccessBlock",
+      "Effect": "Deny",
+      "Action": "s3:PutAccountPublicAccessBlock",
+      "Resource": "*",
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalARN": [
+            "arn:aws:iam::*:role/s3-block-account-public-access-lambda"
+          ]
+        },
+        "Null": {
+          "aws:PrincipalTag/exe-scp-s3-public": true,
+          "aws:PrincipalTag/exe-scp-break-glass": true
+        }
+      }
+    },
+    {
+      "Sid": "DenyAccountRegion",
+      "Effect": "Deny",
+      "Action": [
+        "account:Enable*",
+        "account:Disable*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:PrincipalTag/exe-scp-break-glass": true
+        }
+      }
+    },
+    {
+      "Sid": "DenyBilling",
+      "Effect": "Deny",
+      "Action": "aws-portal:Modify*",
+      "Resource": "*",
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalArn": [
+            "arn:aws:iam::*:role/AWSControlTowerExecution"
+          ]
+        },
+        "Null": {
+          "aws:PrincipalTag/exe-scp-billing": true,
+          "aws:PrincipalTag/exe-scp-break-glass": true
+        }
+      }
+    },
+    {
+      "Sid": "DenyDefaultEBSEncryption",
+      "Effect": "Deny",
+      "Action": "ec2:DisableEbsEncryptionByDefault",
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+            "aws:PrincipalTag/exe-scp-disable-ebs-encryption": true,
+            "aws:PrincipalTag/exe-scp-break-glass": true,
+            "aws:PrincipalTag/exe-permanent-exemption": true
+        }
+      }
+    },
+    {
+      "Sid": "DenyIAMExemptionTagging",
+      "Effect": "Deny",
+      "Action": [
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:TagUser",
+        "iam:UntagUser"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "ForAnyValue:StringLike": {
+          "aws:TagKeys": [
+            "exe-*"
+          ]
+        },
+        "ArnNotLike": {
+          "aws:PrincipalARN": [
+            "arn:aws:iam::*:role/scp-exemption-ssm-automation-execution",
+            "arn:aws:iam::*:role/stacksets-exec-*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "DenyIAMStackSetsExec",
+      "Effect": "Deny",
+      "Action": [
+        "iam:Add*",
+        "iam:Attach*",
+        "iam:Create*",
+        "iam:Delete*",
+        "iam:Detach*",
+        "iam:Put*",
+        "iam:Tag*",
+        "iam:Untag*",
+        "iam:Update*"
+      ],
+      "Resource": "arn:aws:iam::*:role/stacksets-exec-*",
+      "Condition": {
+        "Null": {
+          "aws:PrincipalTag/exe-scp-iam-stacksets-exec": true,
+          "aws:PrincipalTag/exe-scp-break-glass": true
+        }
+      }
+    },
+    {
+      "Sid": "DenyInfraS3",
+      "Effect": "Deny",
+      "Action": [
+        "s3:Abort*",
+        "s3:Bypass*",
+        "s3:Create*",
+        "s3:Delete*",
+        "s3:Object*",
+        "s3:Put*",
+        "s3:Replicate*",
+        "s3:Restore*",
+        "s3:Update*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cldeng*",
+        "arn:aws:s3:::cldeng*/*"
+      ],
+      "Condition": {
+        "Null": {
+          "aws:PrincipalTag/exe-scp-platform-bucket": true,
+          "aws:PrincipalTag/exe-scp-break-glass": true
+        }
+      }
+    },
+    {
+      "Sid": "DenyOrganizations",
+      "Effect": "Deny",
+      "Action": [
+        "organizations:Leave*",
+        "organizations:Delete*",
+        "organizations:Remove*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:PrincipalTag/exe-scp-break-glass": true
+        }
+      }
+    },
+    {
+      "Sid": "DenyRootUser",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "ArnLike": {
+          "aws:PrincipalArn": "arn:aws:iam::*:root"
+        },
+        "Null": {
+          "aws:PrincipalTag/exe-scp-root": true,
+          "aws:PrincipalTag/exe-scp-break-glass": true
+        }
+      }
+    },
+    {
+      "Sid": "RegionRestriction",
+      "Effect": "Deny",
+      "NotAction": [
+        "artifact:*",
+        "budgets:*",
+        "ce:*",
+        "chatbot:*",
+        "cloudfront:*",
+        "compute-optimizer:*",
+        "devicefarm:*",
+        "globalaccelerator:*",
+        "iam:*",
+        "importexport:*",
+        "macie2:*",
+        "opsworks:*",
+        "organizations:*",
+        "route53:*",
+        "sts:*",
+        "support:*",
+        "trustedadvisor:*",
+        "waf:*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEqualsIgnoreCase": {
+          "aws:RequestedRegion": [
+            "ap-southeast-2",
+            "eu-west-1",
+            "us-east-1",
+            "us-east-2",
+            "us-west-2"
+          ]
+        },
+        "ArnNotLike": {
+          "aws:PrincipalArn": [
+            "arn:aws:iam::*:role/AWSControlTowerExecution"
+          ]
+        },
+        "Null": {
+          "aws:PrincipalTag/exe-scp-region": true,
+          "aws:PrincipalTag/exe-scp-break-glass": true
+        }
+      }
+    }
+  ]
+}

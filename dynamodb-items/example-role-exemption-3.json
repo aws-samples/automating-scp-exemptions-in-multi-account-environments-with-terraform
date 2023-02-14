@@ -1,0 +1,14 @@
+{
+"pk": {"S": "40833333333"},
+"sk": {"S": "S3-Full-Access"},
+"AccountId": {"S": "40833333333"},
+"RoleName": {"S": "S3-Full-Access"},
+"ExemptionTagKeys": {
+    "L": [
+    {"S": "exe-scp-test-4"}
+    ]
+},
+"ttl": {"N": "1655410200"},
+"notes": {"S": "SCP Exemption request ticket # 91282345. Reviewed and approved by Security Governance Officer John Doe"},
+"service_now_ticket_no": {"S": "91282345"}
+}

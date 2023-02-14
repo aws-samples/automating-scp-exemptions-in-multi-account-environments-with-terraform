@@ -1,0 +1,28 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenyIAMExemptionTagging",
+            "Effect": "Deny",
+            "Action": [
+                "iam:TagRole",
+                "iam:UntagRole",
+                "iam:TagUser",
+                "iam:UntagUser"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "ForAnyValue:StringLike": {
+                    "aws:TagKeys": [
+                        "exe-*"
+                    ]
+                },
+                "ArnNotLike": {
+                    "aws:PrincipalARN": [
+                        "arn:aws:iam::*:role/scp-exemption-ssm-automation-execution"
+                    ]
+                }
+            }
+        }
+    ]
+}

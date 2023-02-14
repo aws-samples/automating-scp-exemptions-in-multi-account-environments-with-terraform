@@ -1,0 +1,78 @@
+{
+  "ExemptionTagKeys": {
+    "L": [
+      {
+        "S": "exe-scp-break-glass"
+      },
+      {
+        "S": "exe-scp-platform-bucket-restriction"
+      },
+      {
+        "S": "exe-scp-region-restriction"
+      },
+      {
+        "S": "exe-scp-iam-infra-restriction"
+      },
+      {
+        "S": "exe-scp-iam-pass-role-restriction"
+      },
+      {
+        "S": "exe-scp-iam-admin-restriction"
+      },
+      {
+        "S": "exe-scp-lambda-infra-restriction"
+      },
+      {
+        "S": "exe-scp-config-infra-restriction"
+      },
+      {
+        "S": "exe-scp-cloudformation-infra-restriction"
+      },
+      {
+        "S": "exe-scp-events-infra-restriction"
+      },
+      {
+        "S": "exe-scp-reserved-restriction"
+      },
+      {
+        "S": "exe-scp-security-service-restriction"
+      },
+      {
+        "S": "exe-scp-billing-restriction"
+      },
+      {
+        "S": "exe-scp-route53-restriction"
+      },
+      {
+        "S": "exe-scp-networking-restriction"
+      },
+      {
+        "S": "exe-scp-s3-public-restriction"
+      },
+      {
+        "S": "exe-scp-imdsv2-restriction"
+      },
+      {
+        "S": "exe-scp-kms-delete-restriction"
+      },
+      {
+        "S": "exe-scp-disable-ebs-encryption-restriction"
+      },
+      {
+        "S": "exe-scp-iam-oidc-restriction"
+      },
+      {
+        "S": "exe-scp-service-catalog-infra-restriction"
+      },
+      {
+        "S": "exe-scp-ssm-infra-restriction"
+      }
+    ]
+  },
+  "pk": {
+    "S": "options"
+  },
+  "sk": {
+    "S": "exemption-tags"
+  }
+}

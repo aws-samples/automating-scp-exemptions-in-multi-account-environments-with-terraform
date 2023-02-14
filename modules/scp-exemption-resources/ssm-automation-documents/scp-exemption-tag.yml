@@ -1,0 +1,121 @@
+#
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+schemaVersion: "0.3"
+description: "Tag or Untag an IAM role for SCP exemption"
+assumeRole: "{{ automationAssumeRole }}"
+parameters:
+  automationAssumeRole:
+    default: ${yamlencode(ssm_automation_admin_assume_role_arn)}
+    description: "(Required) if running from a Centralized Account"
+    type: String
+  ExemptionTagKeys:
+    description: "Exemption Tag Keys"
+    type: StringList
+  RoleName:
+    description: "IAM Role Name"
+    type: String
+  TagUntag:
+    type: String
+    description: "Tag or Untag the role"
+    default: Tag
+    allowedValues: ["Tag", "Untag"]
+mainSteps:
+  - name: "TagUntagRole"
+    description: "Tag or Untag the provided role"
+    action: "aws:executeScript"
+    inputs:
+      Runtime: "python3.7"
+      Handler: "script_handler"
+      Script: |-
+        def script_handler(events, context):
+          import boto3
+
+          try:
+              iam_client = boto3.client('iam')
+
+              role_name = events.get('role_name', None)
+              exemption_tag_keys = events.get('exemption_tag_keys', None)
+              tag_untag = events.get('tag_untag', None)
+
+              if tag_untag and tag_untag.lower() == 'tag':
+                  exe_tags = []
+
+                  for exe_tag in exemption_tag_keys:
+                      exe_tags.append(
+                          {
+                              'Key': exe_tag,
+                              'Value': 'true'
+                          }
+                      )
+                  try:
+                      if role_name and exe_tags:
+                          tag_role_params = {'RoleName': role_name, 'Tags': exe_tags}
+                          iam_client.tag_role(**tag_role_params)
+                          print(f'Role: {role_name} Tagged')
+                          # print(f'{iam_client.list_user_tags(UserName=role_name)["Tags"]}')
+                  except iam_client.exceptions.NoSuchEntityException:
+                      print(f'Role: {role_name} does not exist')
+                      print(f'Attempting to tag user: {role_name}')
+                      try:
+                          tag_user_params = {
+                              'UserName': role_name,
+                              'Tags': exe_tags
+                          }
+                          iam_client.tag_user(**tag_user_params)
+                          print(f'User: {role_name} Tagged')
+                          # print(f'{iam_client.list_user_tags(UserName=role_name)["Tags"]}')
+                      except iam_client.exceptions.NoSuchEntityException:
+                          print(f'User: {role_name} does not exist')
+                          raise
+              elif tag_untag and tag_untag.lower() == 'untag':
+                  try:
+                      if role_name and exemption_tag_keys:
+                          iam_client.untag_role(
+                              RoleName=role_name,
+                              TagKeys=exemption_tag_keys
+                          )
+                          print(f'Role: {role_name} UnTagged')
+                          # print(f'{iam_client.list_user_tags(UserName=role_name)["Tags"]}')
+                  except iam_client.exceptions.NoSuchEntityException:
+                      print(f'Role: {role_name} does not exist')
+                      print(f'Attempting to untag user: {role_name}')
+                      try:
+                          iam_client.untag_user(
+                              UserName=role_name,
+                              TagKeys=exemption_tag_keys
+                          )
+                          print(f'User: {role_name} UnTagged')
+                          # print(f'{iam_client.list_user_tags(UserName=role_name)["Tags"]}')
+                      except iam_client.exceptions.NoSuchEntityException:
+                          print(f'User: {role_name} does not exist')
+                          raise
+
+          except Exception as e:
+              print(f'Exception: {str(e)}')
+              raise
+
+          return {'status': 'Success'}
+      InputPayload:
+        role_name: "{{ RoleName }}"
+        exemption_tag_keys: "{{ ExemptionTagKeys }}"
+        tag_untag: "{{ TagUntag }}"
+    outputs:
+      - Name: Status
+        Selector: $.Payload.status
+        Type: String
+    isEnd: true

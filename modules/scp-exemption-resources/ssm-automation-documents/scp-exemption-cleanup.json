@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "0.3",
+  "description": "Trigger the cleanup of the SCP exemption after the requested time expires",
+  "assumeRole": "{{ automationAssumeRole }}",
+  "parameters": {
+    "WaitTimeStamp": {
+      "description": "Wait timestamp in ISO 8601 format (YYYY-MM-DDThh:mm:ssZ)",
+      "type": "String"
+    },
+    "DynamoDBTableName": {
+      "description": "SCP Exemption DynamoDB Table Name",
+      "type": "String"
+    },
+    "PrimaryKey": {
+      "description": "Account ID or Organization Unit ID",
+      "type": "String"
+    },
+    "SortKey": {
+      "description": "IAM Role Name",
+      "type": "String"
+    },
+    "automationAssumeRole": {
+      "default": ${jsonencode(ssm_automation_admin_assume_role_arn)},
+      "description": "(Required) if running from a Centralized Account",
+      "type": "String"
+    }
+  },
+  "mainSteps": [
+    {
+      "inputs": {
+        "Timestamp": "{{ WaitTimeStamp }}"
+      },
+      "name": "WaitForRequestedTime",
+      "action": "aws:sleep",
+      "description": "Wait the requested time before moving to the next step",
+      "nextStep": "DeleteItemFromDynamoDBTable"
+    },
+    {
+      "inputs": {
+        "TableName": "{{ DynamoDBTableName }}",
+        "Service": "dynamodb",
+        "Api": "DeleteItem",
+        "Key": {
+          "sk": {
+            "S": "{{ SortKey }}"
+          },
+          "pk": {
+            "S": "{{ PrimaryKey }}"
+          }
+        }
+      },
+      "name": "DeleteItemFromDynamoDBTable",
+      "action": "aws:executeAwsApi",
+      "isEnd": true
+    }
+  ]
+}

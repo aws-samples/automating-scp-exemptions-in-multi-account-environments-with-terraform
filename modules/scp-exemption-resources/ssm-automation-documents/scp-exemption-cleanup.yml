@@ -1,0 +1,56 @@
+#
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+schemaVersion: "0.3"
+description: "Trigger the cleanup of the SCP exemption after the requested time expires"
+assumeRole: "{{ automationAssumeRole }}"
+parameters:
+  automationAssumeRole:
+    default: ${yamlencode(ssm_automation_admin_assume_role_arn)}
+    description: "(Required) if running from a Centralized Account"
+    type: String
+  DynamoDBTableName:
+    description: "SCP Exemption DynamoDB Table Name"
+    type: String
+  PrimaryKey:
+    description: "Account ID or Organization Unit ID"
+    type: String
+  SortKey:
+    description: "IAM Role Name"
+    type: String
+  WaitTimeStamp:
+    description: "Wait timestamp in ISO 8601 format (YYYY-MM-DDThh:mm:ssZ)"
+    type: String
+mainSteps:
+  - name: WaitForRequestedTime
+    action: "aws:sleep"
+    inputs:
+      Timestamp: "{{ WaitTimeStamp }}"
+    description: "Wait the requested time before moving to the next step"
+    nextStep: DeleteItemFromDynamoDBTable
+  - name: DeleteItemFromDynamoDBTable
+    action: "aws:executeAwsApi"
+    inputs:
+      Service: dynamodb
+      Api: DeleteItem
+      TableName: "{{ DynamoDBTableName }}"
+      Key:
+        pk:
+          S: "{{ PrimaryKey }}"
+        sk:
+          S: "{{ SortKey }}"
+    isEnd: true

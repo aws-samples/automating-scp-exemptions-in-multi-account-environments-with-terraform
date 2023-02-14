@@ -1,0 +1,16 @@
+
+# Put Tag Exemption Tag Keys Item
+aws dynamodb put-item \
+    --table-name cldeng-scp-exemption \
+    --item file://exemption-tag-keys-item.json
+
+# Example role exemption put item
+aws dynamodb put-item \
+    --table-name cldeng-scp-exemption \
+    --item file://example-role-exemption-item.json
+
+# Batch Write Item (e.g. permanent exemptions)
+aws dynamodb batch-write-item --request-items file://batch-put-item.json
+
+
+

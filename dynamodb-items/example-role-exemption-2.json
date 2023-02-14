@@ -1,0 +1,11 @@
+{
+  "pk": {"S": "408222222222"},
+  "sk": {"S": "S3FullAccessRole"},
+  "AccountId": {"S": "408222222222"},
+  "RoleName": {"S": "S3FullAccessRole"},
+  "ExemptionTagKeys": {
+      "L": [
+      {"S": "exe-scp-allow-s3-access"}
+      ]
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "GuardSCPExemptionIAM",
+      "Effect": "Deny",
+      "Action": [
+        "iam:Add*",
+        "iam:Attach*",
+        "iam:Create*",
+        "iam:Delete*",
+        "iam:Detach*",
+        "iam:Put*",
+        "iam:Tag*",
+        "iam:Untag*",
+        "iam:Update*"
+      ],
+      "Resource": "arn:aws:iam::[SECURITY_ACCOUNT_ID]:role/scp-exemption-ssm-automation-admin",
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalArn": [
+            "arn:aws:iam::*:role/AWSControlTowerExecution"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "GuardSCPExemptionSSMAutomation",
+      "Effect": "Deny",
+      "Action": "ssm:StartAutomationExecution",
+      "Resource": "arn:aws:ssm:*:*:automation-definition/scp-exemption*",
+      "Condition": {
+        "ArnNotEquals": {
+          "aws:PrincipalARN": [
+            "arn:aws:iam::[SECURITY_ACCOUNT_ID]:role/scp-exemption-dynamodb-lambda"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "GuardSCPExemptionSSMDocument",
+      "Effect": "Deny",
+      "Action": [
+        "ssm:CreateDocument",
+        "ssm:DeleteDocument",
+        "ssm:ModifyDocument*",
+        "ssm:RemoveTags*",
+        "ssm:UpdateDocument*"
+      ],
+      "Resource": "arn:aws:ssm:*:*:document/scp-exemption*",
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalARN": [
+            "arn:aws:iam::*:role/AWSControlTowerExecution"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "GuardSCPExemptionDynamoDBTable",
+      "Effect": "Deny",
+      "Action": [
+        "dynamodb:Create*",
+        "dynamodb:DeleteBackup",
+        "dynamodb:DeleteTable*",
+        "dynamodb:Restore*",
+        "dynamodb:Tag*",
+        "dynamodb:Untag*",
+        "dynamodb:UpdateT*"
+      ],
+      "Resource": "arn:aws:dynamodb:[REPLACE_REGION]:[SECURITY_ACCOUNT_ID]:table/scp-exemption",
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalARN": [
+            "arn:aws:iam::*:role/AWSControlTowerExecution"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "GuardSCPExemptionDynamoDBItem",
+      "Effect": "Deny",
+      "Action": [
+        "dynamodb:BatchWrite*",
+        "dynamodb:DeleteItem",
+        "dynamodb:Put*",
+        "dynamodb:Restore*",
+        "dynamodb:Tag*",
+        "dynamodb:Untag*",
+        "dynamodb:UpdateI*"
+      ],
+      "Resource": "arn:aws:dynamodb:[REPLACE_REGION]:[SECURITY_ACCOUNT_ID]:table/scp-exemption",
+      "Condition": {
+        "ArnNotEquals": {
+          "aws:PrincipalARN": [
+            "arn:aws:iam::[SECURITY_ACCOUNT_ID]:role/scp-exemption-dynamodb-lambda",
+            "arn:aws:iam::[SECURITY_ACCOUNT_ID]:role/scp-exemption-ssm-automation-admin"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "GuardSCPExemptionLambda",
+      "Effect": "Deny",
+      "Action": [
+        "lambda:Add*",
+        "lambda:Create*",
+        "lambda:Delete*",
+        "lambda:Publish*",
+        "lambda:Put*",
+        "lambda:Remove*",
+        "lambda:Tag*",
+        "lambda:Untag*",
+        "lambda:Update*"
+      ],
+      "Resource": "arn:aws:lambda:[REPLACE_REGION]:[SECURITY_ACCOUNT_ID]:function:scp-exemption-dynamodb-stream",
+      "Condition": {
+        "ArnNotLike": {
+          "aws:PrincipalArn": [
+            "arn:aws:iam::*:role/AWSControlTowerExecution"
+          ]
+        }
+      }
+    }
+  ]
+}
