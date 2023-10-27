@@ -39,7 +39,7 @@ mainSteps:
     description: "Tag or Untag the provided role"
     action: "aws:executeScript"
     inputs:
-      Runtime: "python3.7"
+      Runtime: "python3.10"
       Handler: "script_handler"
       Script: |-
         def script_handler(events, context):
